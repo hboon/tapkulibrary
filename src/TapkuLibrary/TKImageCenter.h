@@ -35,10 +35,24 @@
 
 #define NewImageCenterImage @"newImage"
 
+@interface TKPersistentCache : NSObject {
+	NSString* cachePath;
+}
+
+@property (nonatomic,retain) NSString* cachePath;
+
+- (void)setData:(NSData*)aData forKey:(NSString*)aString;
+- (NSData*)dataForKey:(NSString*)aString;
+
+@end
+
+
 @interface TKImageCenter : NSObject {
 
 	NSOperationQueue *queue;
 	NSMutableDictionary *images;
+	BOOL persistentCachingEnabled;
+	TKPersistentCache* persistentCache;
 	
 }
 
@@ -46,6 +60,8 @@
 
 @property (nonatomic,retain) NSOperationQueue *queue;
 @property (nonatomic,retain) NSMutableDictionary *images;
+@property (nonatomic,assign) BOOL persistentCachingEnabled;
+@property (nonatomic,retain) TKPersistentCache* persistentCache;
 
 
 - (UIImage*) imageAtURL:(NSString*)url queueIfNeeded:(BOOL)addToQueue;

@@ -30,9 +30,98 @@
  */
 
 
+#import <CommonCrypto/CommonDigest.h>
+
 #import "TKImageCenter.h"
 #import "NSArray+TKCategory.h"
 
+static NSString* kDefaultDirectoryName = @"TKImageCenter";
+
+
+@interface TKPersistentCache()
+
+- (void)createCachePathWithDirectoryName:(NSString*)aString;
+
+@end
+
+
+@implementation TKPersistentCache
+
+@synthesize cachePath;
+
+- (id)initWithCacheDirectoryName:(NSString*)aString {
+	if (self = [super init]) {
+		[self createCachePathWithDirectoryName:aString];
+	}
+
+	return self;
+}
+
+
+- (id)init {
+	return [self initWithCacheDirectoryName:kDefaultDirectoryName];
+}
+
+
+- (void)dealloc {
+	[cachePath release];
+
+	[super dealloc];
+}
+
+
+// Courtesy of Three20's TTURLCache.m
+- (NSString*)keyFromString:(NSString*)aString {
+	const char* str = [aString UTF8String];
+	unsigned char result[CC_MD5_DIGEST_LENGTH];
+	CC_MD5(str, strlen(str), result);
+
+	return [NSString stringWithFormat:
+		@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+		result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7],
+		result[8], result[9], result[10], result[11], result[12], result[13], result[14], result[15]
+			];
+}
+
+
+- (NSString*)cachePathForKey:(NSString*)aString {
+	return [self.cachePath stringByAppendingPathComponent:[self keyFromString:aString]];
+}
+
+
+- (void)createCachePathWithDirectoryName:(NSString*)aString {
+	NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+	NSString* parentDirectoryPath = [paths objectAtIndex:0];
+	self.cachePath = [parentDirectoryPath stringByAppendingPathComponent:aString];
+	NSFileManager* fileManager = [NSFileManager defaultManager];
+
+	if (![fileManager fileExistsAtPath:parentDirectoryPath]) {
+	[fileManager createDirectoryAtPath:parentDirectoryPath withIntermediateDirectories:YES attributes:nil error:NULL];
+	}
+
+	if (![fileManager fileExistsAtPath:self.cachePath]) {
+	[fileManager createDirectoryAtPath:self.cachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+	}
+}
+
+#pragma mark Cache access
+
+- (void)setData:(NSData*)aData forKey:(NSString*)aString {
+	NSString* filePath = [self cachePathForKey:aString];
+	NSFileManager* fileManager = [NSFileManager defaultManager];
+	[fileManager createFileAtPath:filePath contents:aData attributes:nil];
+}
+
+
+- (NSData*)dataForKey:(NSString*)aString {
+	NSString* filePath = [self cachePathForKey:aString];
+	NSFileManager* fileManager = [NSFileManager defaultManager];
+	if (![fileManager fileExistsAtPath:filePath]) return nil;
+
+	return [NSData dataWithContentsOfFile:filePath];
+}
+
+@end
 
 
 @interface ImageLoadOperation : NSOperation {
@@ -84,7 +173,7 @@
 
 
 @implementation TKImageCenter
-@synthesize queue,images;
+@synthesize queue,images,persistentCachingEnabled,persistentCache;
 
 + (TKImageCenter*) sharedImageCenter{
 	static TKImageCenter *sharedInstance = nil;
@@ -106,7 +195,11 @@
 	
 	UIImage *img = [images objectForKey:imageURL];
 	if(img != nil) return img;
-	
+
+	if (persistentCachingEnabled) {
+		NSData* data = [self.persistentCache dataForKey:imageURL];
+		if (data) return [UIImage imageWithData:data];
+	}
 	
 	BOOL addOperation = addToQueue ? YES : NO;
 	
@@ -142,6 +235,11 @@
 
 - (void) sendNewImageNotification:(NSArray*)ar{
 	[images setObject:[ar firstObject] forKey:[ar lastObject]];
+
+	if (persistentCachingEnabled) {
+		[self.persistentCache setData:UIImagePNGRepresentation([ar firstObject]) forKey:[ar lastObject]];
+	}
+
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"newImage" object:self];
 }
 
@@ -157,7 +255,26 @@
 - (void) dealloc{
 	[queue release];
 	[images release];
+	[persistentCache release];
 	[super dealloc];
 }
+
+#pragma mark Accessor
+
+- (void)setPersistentCachingEnabled:(BOOL)yesOrNo {
+	BOOL cachingPreviouslyEnabled = self.persistentCachingEnabled;
+	persistentCachingEnabled = yesOrNo;
+
+	if (!persistentCachingEnabled) {
+		self.persistentCache = nil;
+		return;
+	}
+
+	if (persistentCachingEnabled && !cachingPreviouslyEnabled) {
+		self.persistentCache = [[[TKPersistentCache alloc] init] autorelease];
+	}
+}
+
+
 	 
 @end
