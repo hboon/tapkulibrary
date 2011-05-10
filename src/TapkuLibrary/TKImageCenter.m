@@ -192,6 +192,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 
 - (UIImage*) imageAtURL:(NSString*)imageURL queueIfNeeded:(BOOL)addToQueue{
+	if ([imageURL length] == 0) return;
 	
 	UIImage *img = [images objectForKey:imageURL];
 	if(img != nil) return img;
