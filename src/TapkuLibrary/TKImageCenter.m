@@ -41,6 +41,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 @interface TKPersistentCache()
 
 - (void)createCachePathWithDirectoryName:(NSString*)aString;
+- (BOOL)hasKeyExpired:(NSString*)aString;
 
 @end
 
@@ -48,10 +49,14 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 @implementation TKPersistentCache
 
 @synthesize cachePath;
+@synthesize cachedTimes;
+@synthesize expiryEnabled;
 
 - (id)initWithCacheDirectoryName:(NSString*)aString {
 	if (self = [super init]) {
 		[self createCachePathWithDirectoryName:aString];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(writeCachedTimesToFile) name:UIApplicationDidEnterBackgroundNotification object:nil];
+		
 	}
 
 	return self;
@@ -64,7 +69,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 
 - (void)dealloc {
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
 	[cachePath release];
+	[cachedTimes release];
 
 	[super dealloc];
 }
@@ -104,12 +112,25 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	}
 }
 
+
+- (NSString*)cachedTimesPath {
+	return [self.cachePath stringByAppendingPathComponent:@"cachedTimes"];
+}
+
+
+- (void)writeCachedTimesToFile {
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		[cachedTimes writeToFile:[self cachedTimesPath] atomically:YES];
+	});
+}
+
 #pragma mark Cache access
 
 - (void)setData:(NSData*)aData forKey:(NSString*)aString {
 	NSString* filePath = [self cachePathForKey:aString];
 	NSFileManager* fileManager = [NSFileManager defaultManager];
 	[fileManager createFileAtPath:filePath contents:aData attributes:nil];
+	[self.cachedTimes setObject:[NSDate date] forKey:aString];
 }
 
 
@@ -119,6 +140,30 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	if (![fileManager fileExistsAtPath:filePath]) return nil;
 
 	return [NSData dataWithContentsOfFile:filePath];
+}
+
+#pragma mark Cache expiry
+
+- (NSMutableDictionary*)cachedTimes {
+	if (!expiryEnabled || cachedTimes) return cachedTimes;
+	
+	cachedTimes = [[NSMutableDictionary alloc] initWithContentsOfFile:[self cachedTimesPath]];
+	
+	if (!cachedTimes) cachedTimes = [[NSMutableDictionary alloc] init];
+	
+	return cachedTimes;
+}
+
+
+- (int)expiryThreshold {
+	//2 days
+	return 172800;
+}
+
+
+- (BOOL)hasKeyExpired:(NSString*)aString {
+	NSDate* date = [self.cachedTimes objectForKey:aString];
+	return !date || -[date timeIntervalSinceNow] > [self expiryThreshold];
 }
 
 @end
@@ -184,7 +229,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 
 @implementation TKImageCenter
-@synthesize queue,images,persistentCachingEnabled,persistentCache;
+@synthesize queue,images,persistentCachingEnabled,expiryEnabled,persistentCache;
 
 + (TKImageCenter*) sharedImageCenter{
 	static TKImageCenter *sharedInstance = nil;
@@ -210,7 +255,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 	if (persistentCachingEnabled) {
 		NSData* data = [self.persistentCache dataForKey:imageURL];
-		if (data) return [UIImage imageWithData:data];
+		if (data && (img = [UIImage imageWithData:data])) {
+			if (!expiryEnabled) return img;
+			if (![self.persistentCache hasKeyExpired:imageURL]) return img;
+		}
 	}
 	
 	BOOL addOperation = addToQueue ? YES : NO;
@@ -235,7 +283,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	
 	
 	
-	return nil;
+	return img;
 	
 }
 
@@ -297,5 +345,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	return [NSString stringWithUTF8String:object_getClassName(self)];
 }
 
+
+- (void)setExpiryEnabled:(BOOL)yesOrNo {
+	expiryEnabled = yesOrNo;
+	self.persistentCache.expiryEnabled = yesOrNo;
+}
 	 
 @end
