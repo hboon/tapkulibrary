@@ -151,7 +151,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 - (void) main {
 	
-	UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:self.imageURL]]];
+	UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[imageCenter adjustURL:self.imageURL]]]];
 	if(img!=nil){
 		
 		
@@ -232,6 +232,11 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 - (UIImage*) adjustImageRecieved:(UIImage*)image{
 	return image;
+}
+
+
+- (NSString*) adjustURL:(NSString*)aString{
+	return aString;
 }
 
 - (void) sendNewImageNotification:(NSArray*)ar{
