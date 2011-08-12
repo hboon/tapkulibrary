@@ -176,6 +176,13 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 @end
 
 
+@interface TKImageCenter()
+
+- (NSString*)cacheDirectoryName;
+
+@end
+
+
 @implementation TKImageCenter
 @synthesize queue,images,persistentCachingEnabled,persistentCache;
 
@@ -281,10 +288,14 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	}
 
 	if (persistentCachingEnabled && !cachingPreviouslyEnabled) {
-		self.persistentCache = [[[TKPersistentCache alloc] init] autorelease];
+		self.persistentCache = [[[TKPersistentCache alloc] initWithCacheDirectoryName:[self cacheDirectoryName]] autorelease];
 	}
 }
 
+
+- (NSString*)cacheDirectoryName {
+	return [NSString stringWithUTF8String:object_getClassName(self)];
+}
 
 	 
 @end
