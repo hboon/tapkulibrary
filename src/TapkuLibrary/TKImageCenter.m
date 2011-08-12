@@ -178,7 +178,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 + (TKImageCenter*) sharedImageCenter{
 	static TKImageCenter *sharedInstance = nil;
 	if (!sharedInstance) {
-		sharedInstance = [[TKImageCenter alloc] init];
+		sharedInstance = [[[self class] alloc] init];
 	}
 	return sharedInstance;
 }
