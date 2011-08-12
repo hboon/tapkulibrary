@@ -66,7 +66,7 @@
 
 - (UIImage*) imageAtURL:(NSString*)url queueIfNeeded:(BOOL)addToQueue;
 
-- (UIImage*) adjustImageRecieved:(UIImage*)image; // subclass to add cropping or manipulation
+- (UIImage*) adjustImageReceived:(UIImage*)image; // subclass to add cropping or manipulation
 - (NSString*) adjustURL:(NSString*)aString;	// subclass to manipulate actual URL to fetch
 
 - (void) clearImages;

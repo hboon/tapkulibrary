@@ -155,7 +155,11 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	if(img!=nil){
 		
 		
-		img = [imageCenter adjustImageRecieved:img];
+		if ([imageCenter respondsToSelector:@selector(adjustImageRecieved:)]) {
+			img = [imageCenter performSelector:@selector(adjustImageRecieved:) withObject:img];
+		} else {
+			img = [imageCenter adjustImageReceived:img];
+		}
 		
 		if(img!=nil){
 			[imageCenter performSelectorOnMainThread:@selector(sendNewImageNotification:) 
@@ -230,7 +234,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 
 
-- (UIImage*) adjustImageRecieved:(UIImage*)image{
+- (UIImage*) adjustImageReceived:(UIImage*)image{
 	return image;
 }
 
