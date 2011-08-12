@@ -246,7 +246,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 		[self.persistentCache setData:UIImagePNGRepresentation([ar firstObject]) forKey:[ar lastObject]];
 	}
 
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"newImage" object:self];
+	[[NSNotificationCenter defaultCenter] postNotificationName:NewImageCenterImage object:self];
 }
 
 
