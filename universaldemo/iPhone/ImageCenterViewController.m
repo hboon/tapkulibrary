@@ -35,7 +35,7 @@
 
 - (id) init{
 	if(!(self=[super init])) return nil;
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newImageRetrieved) name:@"newImage" object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newImageRetrieved) name:NewImageCenterImage object:nil];
 	
 	urlArray = [[NSArray alloc] initWithObjects:
 				@"http://farm3.static.flickr.com/2797/4196552800_a5de0f3627_t.jpg",
