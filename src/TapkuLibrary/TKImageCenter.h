@@ -37,9 +37,13 @@
 
 @interface TKPersistentCache : NSObject {
 	NSString* cachePath;
+	NSMutableDictionary* cachedTimes;
+	BOOL expiryEnabled;
 }
 
 @property (nonatomic,retain) NSString* cachePath;
+@property (nonatomic,retain) NSMutableDictionary* cachedTimes;
+@property (nonatomic,assign) BOOL expiryEnabled;
 
 - (void)setData:(NSData*)aData forKey:(NSString*)aString;
 - (NSData*)dataForKey:(NSString*)aString;
@@ -52,6 +56,7 @@
 	NSOperationQueue *queue;
 	NSMutableDictionary *images;
 	BOOL persistentCachingEnabled;
+	BOOL expiryEnabled;
 	TKPersistentCache* persistentCache;
 	
 }
@@ -61,12 +66,14 @@
 @property (nonatomic,retain) NSOperationQueue *queue;
 @property (nonatomic,retain) NSMutableDictionary *images;
 @property (nonatomic,assign) BOOL persistentCachingEnabled;
+@property (nonatomic,assign) BOOL expiryEnabled;
 @property (nonatomic,retain) TKPersistentCache* persistentCache;
 
 
 - (UIImage*) imageAtURL:(NSString*)url queueIfNeeded:(BOOL)addToQueue;
 
-- (UIImage*) adjustImageRecieved:(UIImage*)image; // subclass to add cropping or manipulation
+- (UIImage*) adjustImageReceived:(UIImage*)image; // subclass to add cropping or manipulation
+- (NSString*) adjustURL:(NSString*)aString;	// subclass to manipulate actual URL to fetch
 
 - (void) clearImages;
 
