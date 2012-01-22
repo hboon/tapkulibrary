@@ -256,8 +256,14 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	if (persistentCachingEnabled) {
 		NSData* data = [self.persistentCache dataForKey:imageURL];
 		if (data && (img = [UIImage imageWithData:data])) {
-			if (!expiryEnabled) return img;
-			if (![self.persistentCache hasKeyExpired:imageURL]) return img;
+			if (!expiryEnabled) {
+				[images setObject:img forKey:imageURL];
+				return img;
+			}
+			if (![self.persistentCache hasKeyExpired:imageURL]) {
+				[images setObject:img forKey:imageURL];
+				return img;
+			}
 		}
 	}
 	
