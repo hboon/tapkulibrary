@@ -142,6 +142,14 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	return [NSData dataWithContentsOfFile:filePath];
 }
 
+
+- (void)removeDataForKey:(NSString*)aString {
+	NSString* filePath = [self cachePathForKey:aString];
+	NSFileManager* fileManager = [NSFileManager defaultManager];
+	[fileManager removeItemAtPath:filePath error:nil];
+	[self.cachedTimes removeObjectForKey:aString];
+}
+
 #pragma mark Cache expiry
 
 - (NSMutableDictionary*)cachedTimes {
@@ -247,6 +255,13 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 }
 
 
+- (void) clearImageAtURL:(NSString*)imageURL {
+	[images removeObjectForKey:imageURL];
+
+	if (persistentCachingEnabled) {
+		[self.persistentCache removeDataForKey:imageURL];
+	}
+}
 - (UIImage*) imageAtURL:(NSString*)imageURL queueIfNeeded:(BOOL)addToQueue{
 	if ([imageURL length] == 0) return nil;
 	

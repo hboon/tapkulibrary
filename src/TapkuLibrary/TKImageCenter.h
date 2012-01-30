@@ -76,5 +76,6 @@
 - (NSString*) adjustURL:(NSString*)aString;	// subclass to manipulate actual URL to fetch
 
 - (void) clearImages;
+- (void) clearImageAtURL:(NSString*)imageURL;
 
 @end
