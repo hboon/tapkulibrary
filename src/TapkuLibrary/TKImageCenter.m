@@ -329,6 +329,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	[[NSNotificationCenter defaultCenter] postNotificationName:NewImageCenterImage object:self];
 }
 
+- (void)addToCacheImage:(UIImage*)anImage atURL:(NSString*)aString {
+	[self sendNewImageNotification:[NSArray arrayWithObjects:anImage,aString,nil]];
+}
+
 
 
 
