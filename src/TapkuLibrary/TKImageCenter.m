@@ -342,6 +342,9 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	[queue cancelAllOperations];
 	[images removeAllObjects];
 }
+- (void) clearImagesOnly{
+	[images removeAllObjects];
+}
 - (void) dealloc{
 	[queue release];
 	[images release];
