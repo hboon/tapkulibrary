@@ -262,7 +262,9 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 		[self.persistentCache removeDataForKey:imageURL];
 	}
 }
-- (UIImage*) imageAtURL:(NSString*)imageURL queueIfNeeded:(BOOL)addToQueue{
+
+
+- (UIImage*) imageAtURL:(NSString*)imageURL queueIfNeeded:(BOOL)addToQueue priority:(NSOperationQueuePriority)aPriority {
 	if ([imageURL length] == 0) return nil;
 	
 	UIImage *img = [images objectForKey:imageURL];
@@ -296,6 +298,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 		if(addOperation){
 			ImageLoadOperation *op = [[ImageLoadOperation alloc] initWithImageURLString:imageURL];
 			op.imageCenter = self;
+			op.queuePriority = aPriority;
 			[queue addOperation:op];
 			[op release];
 		}
@@ -306,6 +309,11 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	
 	return img;
 	
+}
+
+
+- (UIImage*) imageAtURL:(NSString*)imageURL queueIfNeeded:(BOOL)addToQueue{
+	return [self imageAtURL:imageURL queueIfNeeded:addToQueue priority:NSOperationQueuePriorityNormal];
 }
 
 

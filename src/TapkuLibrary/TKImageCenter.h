@@ -70,6 +70,7 @@
 @property (nonatomic,retain) TKPersistentCache* persistentCache;
 
 
+- (UIImage*) imageAtURL:(NSString*)imageURL queueIfNeeded:(BOOL)addToQueue priority:(NSOperationQueuePriority)aPriority;
 - (UIImage*) imageAtURL:(NSString*)url queueIfNeeded:(BOOL)addToQueue;
 - (void)addToCacheImage:(UIImage*)anImage atURL:(NSString*)aString;
 
