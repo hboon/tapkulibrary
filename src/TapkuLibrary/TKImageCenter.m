@@ -203,6 +203,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 }
 
 - (void) main {
+	if ([self.imageCenter imageAtURL:self.imageURL queueIfNeeded:NO]) {
+		//We have already loaded this image through a higher priority operation, abort
+		return;
+	}
 	
 	UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[imageCenter adjustURL:self.imageURL]]]];
 	if(img!=nil){
@@ -288,8 +292,9 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	
 	if(addOperation){
 		
+		// We don't cancel the operations for the same image URL that is lower priority because we want to avoid looping through all the operations. Since we don't have dependent operations, this should be fine, and not slower than cancelling operations. We do skip the downloading operation inside ImageLoadOperation -main if the image has already been loaded
 		for(ImageLoadOperation *op in [queue operations]){
-			if([op.imageURL isEqualToString:imageURL]){
+			if([op.imageURL isEqualToString:imageURL] && op.queuePriority >= aPriority){
 				addOperation = NO;
 				break;
 			}
