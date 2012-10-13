@@ -41,6 +41,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 @interface TKPersistentCache()
 
 - (void)createCachePathWithDirectoryName:(NSString*)aString;
++ (void)deleteCachePathWithDirectoryName:(NSString*)aString;
 - (BOOL)hasKeyExpired:(NSString*)aString;
 
 @end
@@ -51,6 +52,17 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 @synthesize cachePath;
 @synthesize cachedTimes;
 @synthesize expiryEnabled;
+
++ (void)deleteCachePathWithDirectoryName:(NSString*)aString {
+	NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+	NSString* parentDirectoryPath = [paths objectAtIndex:0];
+	NSString* cachePath = [parentDirectoryPath stringByAppendingPathComponent:aString];
+	NSFileManager* fileManager = [NSFileManager defaultManager];
+
+	if ([fileManager fileExistsAtPath:cachePath]) {
+		[fileManager removeItemAtPath:cachePath error:NULL];
+	}
+}
 
 - (id)initWithCacheDirectoryName:(NSString*)aString {
 	if (self = [super init]) {
@@ -242,6 +254,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 @implementation TKImageCenter
 @synthesize queue,images,persistentCachingEnabled,expiryEnabled,persistentCache;
+
+- (void)deleteCache {
+	[TKPersistentCache deleteCachePathWithDirectoryName:[self cacheDirectoryName]];
+}
 
 + (TKImageCenter*) sharedImageCenter{
 	static TKImageCenter *sharedInstance = nil;
