@@ -276,6 +276,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 
 
 - (void) clearImageAtURL:(NSString*)imageURL {
+	if (!imageURL) {
+		return;
+	}
+	
 	[images removeObjectForKey:imageURL];
 
 	if (persistentCachingEnabled) {
