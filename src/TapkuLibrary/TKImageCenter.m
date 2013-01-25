@@ -235,9 +235,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 										  withObject:[NSArray arrayWithObjects:img,self.imageURL,nil] 
 									   waitUntilDone:YES];
 		}
-		
-
-		
+	}else{
+			[imageCenter performSelectorOnMainThread:@selector(sendFailedImageNotification:) 
+										  withObject:self.imageURL
+									   waitUntilDone:YES];
 	}
 	
 }
@@ -360,6 +361,10 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	}
 
 	[[NSNotificationCenter defaultCenter] postNotificationName:NewImageCenterImage object:self userInfo:@{NewImageCenterURLKey:[ar lastObject]}];
+}
+
+- (void) sendFailedImageNotification:(NSString*)aString {
+	[[NSNotificationCenter defaultCenter] postNotificationName:FailedImageCenterImage object:self userInfo:@{NewImageCenterURLKey:aString}];
 }
 
 - (void)addToCacheImage:(UIImage*)anImage atURL:(NSString*)aString {

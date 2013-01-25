@@ -34,6 +34,7 @@
 #import <UIKit/UIKit.h>
 
 #define NewImageCenterImage @"newImage"
+#define FailedImageCenterImage @"failedImage"
 #define NewImageCenterURLKey @"url"
 
 @interface TKPersistentCache : NSObject {
