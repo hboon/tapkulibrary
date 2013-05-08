@@ -233,12 +233,12 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 		if(img!=nil){
 			[imageCenter performSelectorOnMainThread:@selector(sendNewImageNotification:) 
 										  withObject:[NSArray arrayWithObjects:img,self.imageURL,nil] 
-									   waitUntilDone:YES];
+									   waitUntilDone:NO];
 		}
 	}else{
 			[imageCenter performSelectorOnMainThread:@selector(sendFailedImageNotification:) 
 										  withObject:self.imageURL
-									   waitUntilDone:YES];
+									   waitUntilDone:NO];
 	}
 	
 }
