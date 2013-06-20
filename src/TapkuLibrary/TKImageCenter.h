@@ -56,7 +56,7 @@
 @interface TKImageCenter : NSObject {
 
 	NSOperationQueue *queue;
-	NSMutableDictionary *images;
+	NSCache *images;
 	BOOL persistentCachingEnabled;
 	BOOL expiryEnabled;
 	TKPersistentCache* persistentCache;
@@ -66,7 +66,7 @@
 + (TKImageCenter*) sharedImageCenter;
 
 @property (nonatomic,retain) NSOperationQueue *queue;
-@property (nonatomic,retain) NSMutableDictionary *images;
+@property (nonatomic,retain) NSCache *images;
 @property (nonatomic,assign) BOOL persistentCachingEnabled;
 @property (nonatomic,assign) BOOL expiryEnabled;
 @property (nonatomic,retain) TKPersistentCache* persistentCache;
