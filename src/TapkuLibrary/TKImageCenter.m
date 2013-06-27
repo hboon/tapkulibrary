@@ -279,7 +279,7 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 	if(!(self=[super init])) return nil;
 	queue = [[NSOperationQueue alloc] init];
 	[queue setMaxConcurrentOperationCount:3];
-	images = [[NSMutableDictionary alloc] init];
+	images = [[NSCache alloc] init];
 	return self;
 }
 
