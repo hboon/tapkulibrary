@@ -220,9 +220,17 @@ static NSString* kDefaultDirectoryName = @"TKImageCenter";
 		return;
 	}
 	
-	UIImage *img = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[imageCenter adjustURL:self.imageURL]]]];
-	if(img!=nil){
-		
+	//MO_LogDebug(@" loading: %@", [imageCenter adjustURL:self.imageURL]);
+	NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL URLWithString:[imageCenter adjustURL:self.imageURL]] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:15];
+	NSHTTPURLResponse* response = nil;
+	NSError* error = nil;
+	NSData* data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+	//if (error) {
+		//LOG_EXPR( error);
+	//}
+
+	if (data) {
+		UIImage* img = [UIImage imageWithData:data];
 		
 		if ([imageCenter respondsToSelector:@selector(adjustImageRecieved:)]) {
 			img = [imageCenter performSelector:@selector(adjustImageRecieved:) withObject:img];
