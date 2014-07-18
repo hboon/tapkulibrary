@@ -33,10 +33,6 @@
 
 @implementation NSArray (TKCategory)
 
-- (id) firstObject{
-	return [self objectAtIndex:0];
-}
-
 - (id) randomObject{
 	return [self objectAtIndex:arc4random() % [self count]];
 }
